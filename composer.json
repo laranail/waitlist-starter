@@ -1,23 +1,34 @@
 {
     "$schema": "https://getcomposer.org/schema.json",
-    "name": "laravel/laravel",
+    "name": "laranail/waitlist-starter",
     "type": "project",
-    "description": "The skeleton application for the Laravel framework.",
-    "keywords": ["laravel", "framework"],
+    "description": "A Laravel app that runs laranail/waitlist-kit: a waitlist, coming-soon or early-access site in one command, with its backend.",
+    "keywords": [
+        "laravel",
+        "laranail",
+        "waitlist",
+        "coming-soon",
+        "early-access",
+        "starter-kit",
+        "skeleton"
+    ],
     "license": "MIT",
     "require": {
-        "php": "^8.3",
+        "php": "^8.5",
+        "laranail/waitlist-kit": "^0.1@dev",
         "laravel/framework": "^13.17",
         "laravel/tinker": "^3.0"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",
+        "larastan/larastan": "^3.0",
         "laravel/pail": "^1.2.5",
         "laravel/pao": "^1.0.6",
         "laravel/pint": "^1.27",
         "mockery/mockery": "^1.6",
         "nunomaduro/collision": "^8.6",
-        "phpunit/phpunit": "^12.5.12"
+        "pestphp/pest": "^4.0",
+        "pestphp/pest-plugin-laravel": "^4.0"
     },
     "autoload": {
         "psr-4": {
@@ -36,17 +47,13 @@
             "composer install",
             "@php -r \"file_exists('.env') || copy('.env.example', '.env');\"",
             "@php artisan key:generate",
-            "@php artisan migrate --force",
-            "npm install --ignore-scripts",
-            "npm run build"
-        ],
-        "dev": [
-            "Composer\\Config::disableProcessTimeout",
-            "@php artisan dev"
+            "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
+            "@php artisan laranail::waitlist-kit.install --migrate",
+            "@php artisan db:seed --force"
         ],
         "test": [
             "@php artisan config:clear --ansi @no_additional_args",
-            "@php artisan test"
+            "@php vendor/bin/pest"
         ],
         "post-autoload-dump": [
             "Illuminate\\Foundation\\ComposerScripts::postAutoloadDump",
@@ -61,10 +68,15 @@
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi",
             "@php -r \"file_exists('database/database.sqlite') || touch('database/database.sqlite');\"",
-            "@php artisan migrate --graceful --ansi"
+            "@php artisan laranail::waitlist-kit.install --migrate --ansi",
+            "@php artisan db:seed --force --ansi"
         ],
         "pre-package-uninstall": [
             "Illuminate\\Foundation\\ComposerScripts::prePackageUninstall"
+        ],
+        "lint": [
+            "@php vendor/bin/pint --test",
+            "@php vendor/bin/phpstan analyse --no-progress"
         ]
     },
     "extra": {
@@ -81,6 +93,48 @@
             "php-http/discovery": true
         }
     },
-    "minimum-stability": "stable",
-    "prefer-stable": true
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "homepage": "https://opensource.simtabi.com/products/laranail/waitlist-starter",
+    "authors": [
+        {
+            "name": "Simtabi LLC",
+            "email": "opensource@simtabi.com",
+            "homepage": "https://opensource.simtabi.com",
+            "role": "Organization"
+        },
+        {
+            "name": "Imani Manyara",
+            "email": "imani@simtabi.com",
+            "role": "Maintainer"
+        }
+    ],
+    "support": {
+        "issues": "https://github.com/laranail/waitlist-starter/issues",
+        "source": "https://github.com/laranail/waitlist-starter"
+    },
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/laranail/waitlist-kit"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/laranail/console"
+        },
+        {
+            "type": "vcs",
+            "url": "https://github.com/laranail/package-tools"
+        },
+        {
+            "type": "composer",
+            "url": "https://repo.packagist.org",
+            "exclude": [
+                "laranail/*"
+            ]
+        },
+        {
+            "packagist.org": false
+        }
+    ]
 }
