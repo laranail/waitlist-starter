@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Models\User;
 use Simtabi\Laranail\WaitlistKit\Database\Seeders\WaitlistKitSeeder;
 use Simtabi\Laranail\WaitlistKit\Enums\CampaignStatus;
 use Simtabi\Laranail\WaitlistKit\Models\Campaign;
@@ -10,6 +11,7 @@ it('seeds one draft campaign and explains how to publish it', function (): void 
     $this->seed();
 
     expect(Campaign::query()->count())->toBe(1)
+        ->and(User::query()->count())->toBe(0)
         ->and(Campaign::query()->sole()->status)->toBe(CampaignStatus::Draft);
 
     $this->get('/')

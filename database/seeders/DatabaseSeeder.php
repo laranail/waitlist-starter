@@ -1,25 +1,22 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
-     * Seed the application's database.
+     * Seed the application's database. laranail/waitlist-kit registers its own seeder, which runs with this one: the
+     * first campaign as a draft, draft legal pages, and an administrator when WAITLIST_KIT_SEED_ADMIN_EMAIL is set.
+     *
+     * The skeleton's test user is gone on purpose: it carried a published password, and this seeder runs in
+     * production as part of create-project and deploys.
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
+        //
     }
 }
