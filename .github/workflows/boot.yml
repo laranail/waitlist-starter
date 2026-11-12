@@ -49,9 +49,10 @@ jobs:
             --repository='{"type":"path","url":"/tmp/dist","options":{"symlink":false,"versions":{"laranail/waitlist-starter":"0.1.0-dev"}}}'
 
       - name: Serve
-        working-directory: /tmp/site
+        # Laravel's router script reads index.php from the working directory, so the server starts inside public/.
+        working-directory: /tmp/site/public
         run: |
-          php -S 127.0.0.1:8000 -t public vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php > /tmp/server.log 2>&1 &
+          php -S 127.0.0.1:8000 -t . ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php > /tmp/server.log 2>&1 &
           for i in $(seq 1 20); do curl -fs -o /dev/null http://127.0.0.1:8000/up && exit 0; sleep 0.5; done
           cat /tmp/server.log; exit 1
 
