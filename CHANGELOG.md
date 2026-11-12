@@ -6,7 +6,12 @@ All notable changes to this project are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.1.0] - 2026-11-12
+
 ### Added
+
+- Requires laranail/waitlist-kit `^0.1` (its first release) rather than its `main` branch; `create-project` needs no
+  `--stability=dev`.
 
 - The Laravel 13.11 skeleton, requiring laranail/waitlist-kit from GitHub: one campaign (`WAITLIST_KIT_CAMPAIGNS=single`),
   the kit's own sign-in (`WAITLIST_KIT_AUTH=bundled`), SQLite.

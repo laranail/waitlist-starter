@@ -13,7 +13,7 @@ What the starter needs, how to create a site from it, and the defaults it sets.
 The starter and the kit are not on Packagist yet, so Composer reads them from GitHub:
 
 ```bash
-composer create-project laranail/waitlist-starter my-site --stability=dev \
+composer create-project laranail/waitlist-starter my-site \
   --repository='{"type":"vcs","url":"https://github.com/laranail/waitlist-starter"}'
 ```
 

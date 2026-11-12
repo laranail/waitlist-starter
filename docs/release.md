@@ -4,8 +4,9 @@ How the starter is versioned, and how a site built from it stays current.
 
 ## Versions
 
-Semantic versioning, from the first tag. Until then `main` is the only version and `create-project` takes it
-with `--stability=dev`. A tag is final: it is never moved or reused.
+Semantic versioning, from `v0.1.0`. `create-project` takes the newest tag; `--stability=dev` takes `main` instead.
+A tag is final: it is never moved or reused. Cut a release by moving `[Unreleased]` under a version heading through a
+pull request, then tag the merge commit.
 
 ## Keeping a site current
 
