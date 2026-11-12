@@ -11,7 +11,7 @@ Laravel 13, PHP 8.5. Not on Packagist yet, so no registry badge: install it from
 ## Install
 
 ```bash
-composer create-project laranail/waitlist-starter my-site --stability=dev \
+composer create-project laranail/waitlist-starter my-site \
   --repository='{"type":"vcs","url":"https://github.com/laranail/waitlist-starter"}'
 ```
 
