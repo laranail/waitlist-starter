@@ -29,7 +29,7 @@ php artisan laranail::waitlist-kit.admin you@example.com
 php artisan serve
 ```
 
-Sign in at `/waitlist-admin`, open the campaign and set it live. The home page then sends visitors to it.
+Sign in at `/admin/waitlist`, open the campaign and set it live. The home page then sends visitors to it.
 
 ### Usage
 

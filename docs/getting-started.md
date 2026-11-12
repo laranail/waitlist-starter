@@ -12,7 +12,7 @@ The password is asked for twice and hidden. Or set `WAITLIST_KIT_SEED_ADMIN_EMAI
 
 ## Set the campaign live
 
-Serve the site (`php artisan serve`) and sign in at `/waitlist-admin`. The seeded campaign is a draft at
+Serve the site (`php artisan serve`) and sign in at `/admin/waitlist`. The seeded campaign is a draft at
 `/waitlist/waitlist`: open it, edit its blocks, and set its status to live.
 
 While nothing is live, `/` shows how to get there. Once a campaign is live, `/` redirects to it.
