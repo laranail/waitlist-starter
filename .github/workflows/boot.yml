@@ -1,0 +1,82 @@
+name: Boot
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: boot-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  COMPOSER_AUTH: '{"github-oauth":{"github.com":"${{ github.token }}"}}'
+
+jobs:
+  # Phase 6's exit check, the way a user receives the starter: composer create-project from the dist (export-ignore
+  # applied), a served site, a live campaign that takes a sign-up, then eject and the same page through the
+  # application's own controllers.
+  boot:
+    if: ${{ !github.event.pull_request.draft }}
+    name: create-project, serve, sign up, eject
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
+
+      - name: Set up PHP
+        uses: shivammathur/setup-php@eb7c497e18156a6bbabfef1d3a82760b9eda3962 # 2.40.0
+        with:
+          php-version: '8.5'
+          extensions: dom, curl, libxml, mbstring, zip, pdo, sqlite, pdo_sqlite, bcmath, intl
+          coverage: none
+
+      - name: Build the dist exactly as Composer would
+        run: |
+          mkdir -p /tmp/dist
+          git archive --format=tar HEAD | tar -x -C /tmp/dist
+
+      - name: composer create-project
+        run: |
+          composer create-project laranail/waitlist-starter /tmp/site --stability=dev --no-interaction --no-progress \
+            --repository='{"type":"path","url":"/tmp/dist","options":{"symlink":false,"versions":{"laranail/waitlist-starter":"0.1.0-dev"}}}'
+
+      - name: Serve
+        # Laravel's router script reads index.php from the working directory, so the server starts inside public/.
+        working-directory: /tmp/site/public
+        run: |
+          php -S 127.0.0.1:8000 -t . ../vendor/laravel/framework/src/Illuminate/Foundation/resources/server.php > /tmp/server.log 2>&1 &
+          for i in $(seq 1 20); do curl -fs -o /dev/null http://127.0.0.1:8000/up && exit 0; sleep 0.5; done
+          cat /tmp/server.log; exit 1
+
+      - name: The front door explains a draft
+        run: curl -fs http://127.0.0.1:8000/ | grep -q 'No campaign is live yet'
+
+      - name: A live campaign takes a sign-up
+        working-directory: /tmp/site
+        run: |
+          sqlite3 database/database.sqlite "update laranail_waitlist_kit_campaigns set status = 'live';"
+          test "$(curl -s -o /dev/null -w '%{redirect_url}' http://127.0.0.1:8000/)" = "http://127.0.0.1:8000/waitlist/waitlist"
+          page=$(curl -fs -c /tmp/jar http://127.0.0.1:8000/waitlist/waitlist)
+          echo "$page" | grep -q 'data-scope="signup-form"'
+          token=$(echo "$page" | grep -o 'name="_token" value="[^"]*"' | head -1 | sed 's/.*value="//; s/"$//')
+          curl -fs -b /tmp/jar -o /dev/null --data-urlencode "_token=${token}" --data-urlencode 'email=dana@example.com' \
+            --data-urlencode 'consent=1' http://127.0.0.1:8000/waitlist/waitlist
+          test "$(sqlite3 database/database.sqlite "select count(*) from laranail_waitlist_kit_subscribers where email = 'dana@example.com';")" = 1
+
+      - name: Eject, and serve the same page through the application's controllers
+        working-directory: /tmp/site
+        run: |
+          php artisan laranail::waitlist-kit.eject --no-interaction
+          # route:list shortens App\Http\Controllers\ in its table, so read the JSON.
+          php artisan route:list --name=campaign.show --json \
+            | php -r '$r = json_decode(stream_get_contents(STDIN), true); exit(($r[0]["action"] ?? "") === "App\\Http\\Controllers\\WaitlistKit\\CampaignController@show" ? 0 : 1);'
+          echo '<p data-ejected="yes"></p>' >> resources/views/vendor/laranail/waitlist-kit/base/campaign.blade.php
+          curl -fs http://127.0.0.1:8000/waitlist/waitlist | grep -q 'data-ejected="yes"'

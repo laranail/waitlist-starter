@@ -28,3 +28,5 @@ Thumbs.db
 /.claude
 /public/vendor
 /database/*.sqlite
+# A starter resolves its dependencies fresh for each new site; the site commits its own lock.
+/composer.lock
