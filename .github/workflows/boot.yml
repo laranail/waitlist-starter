@@ -75,6 +75,8 @@ jobs:
         working-directory: /tmp/site
         run: |
           php artisan laranail::waitlist-kit.eject --no-interaction
-          php artisan route:list --name=campaign.show | grep -q 'App\\Http\\Controllers\\WaitlistKit\\CampaignController'
+          # route:list shortens App\Http\Controllers\ in its table, so read the JSON.
+          php artisan route:list --name=campaign.show --json \
+            | php -r '$r = json_decode(stream_get_contents(STDIN), true); exit(($r[0]["action"] ?? "") === "App\\Http\\Controllers\\WaitlistKit\\CampaignController@show" ? 0 : 1);'
           echo '<p data-ejected="yes"></p>' >> resources/views/vendor/laranail/waitlist-kit/base/campaign.blade.php
           curl -fs http://127.0.0.1:8000/waitlist/waitlist | grep -q 'data-ejected="yes"'
